@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Wildfire Risk Assessment AI</title>
+    <title>Wildfire & Flood Risk Assessment AI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { max-width: 1000px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); min-height: 100vh; }
+        body { max-width: 1200px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); min-height: 100vh; }
         .header { background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; text-align: center; }
         .container { display: flex; gap: 30px; flex-wrap: wrap; }
         .input-panel { flex: 1; min-width: 300px; }
@@ -14,15 +14,15 @@
         input, select, button { padding: 14px; margin: 8px 0; font-size: 16px; border-radius: 8px; transition: all 0.3s; }
         input, select { width: 100%; border: 2px solid #e0e0e0; box-sizing: border-box; }
         input:focus, select:focus { border-color: #ff6b35; outline: none; box-shadow: 0 0 0 3px rgba(255,107,53,0.2); }
-        button { background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%); color: white; border: none; cursor: pointer; font-weight: bold; }
+        button { background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%); color: white; border: none; cursor: pointer; font-weight: bold; width: 100%; }
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,107,53,0.4); }
         .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-button { background: #e0e0e0; color: #666; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; }
+        .tab-button { background: #e0e0e0; color: #666; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 120px; }
         .tab-button.active { background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%); color: white; }
         .loading { text-align: center; padding: 40px; color: #666; }
         .error { background: #ffebee; color: #d63031; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #d63031; }
         .metric { margin: 25px 0; padding: 20px; background: #f8f9fa; border-radius: 10px; }
-        .progress-bar { height: 24px; background: #eee; border-radius: 12px; margin: 15px 0; overflow: hidden; position: relative; }
+        .progress-bar { height: 24px; background: #eee; border-radius: 12px; margin: 15px 0; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 12px; transition: width 1s ease-in-out; }
         .risk-high { background: linear-gradient(90deg, #d63031, #ff7675); }
         .risk-medium { background: linear-gradient(90deg, #f39c12, #fdcb6e); }
@@ -31,21 +31,32 @@
         .feature-item { background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; transition: transform 0.3s; }
         .feature-item:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); }
         .footer { margin-top: 40px; text-align: center; color: #666; font-size: 14px; border-top: 1px solid #e0e0e0; padding-top: 20px; }
-        .social-links a { margin: 0 12px; color: #ff6b35; text-decoration: none; font-weight: bold; padding: 8px 16px; border-radius: 20px; border: 2px solid #ff6b35; transition: all 0.3s; }
-        .social-links a:hover { background: #ff6b35; color: white; }
+        .social-links a { margin: 0 12px; color: #ff6b35; text-decoration: none; font-weight: bold; padding: 8px 16px; border-radius: 20px; border: 2px solid #ff6b35; transition: all 0.3s; display: inline-block; }
+        .social-links a:hover { background: #ff6b35; color: white; transform: scale(1.05); }
         .info-section { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 25px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #2196f3; }
         .location-chip { display: inline-block; background: #e0e0e0; padding: 8px 18px; border-radius: 25px; margin: 5px; cursor: pointer; transition: all 0.3s; font-weight: 500; }
         .location-chip:hover { background: #ff6b35; color: white; transform: scale(1.05); }
-        .risk-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
         .timestamp { color: #666; font-size: 13px; margin-top: 10px; font-style: italic; }
         .coordinates-display { background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 15px 0; font-family: monospace; font-size: 16px; }
+        .satellite-image { width: 100%; max-width: 600px; border-radius: 10px; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .factor-card { background: white; padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 4px solid; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .factor-card.high { border-left-color: #d63031; background: linear-gradient(135deg, #fff 0%, #ffebee 100%); }
+        .factor-card.moderate { border-left-color: #f39c12; background: linear-gradient(135deg, #fff 0%, #fff3cd 100%); }
+        .severity-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
+        .severity-badge.high { background: #d63031; }
+        .severity-badge.moderate { background: #f39c12; }
+        .citation { background: #fff3cd; padding: 10px; border-radius: 5px; font-size: 13px; margin-top: 10px; border-left: 3px solid #f39c12; }
+        .trend-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 15px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+        .trend-badge.increasing { background: rgba(39,174,96,0.1); color: #27ae60; }
+        .trend-badge.decreasing { background: rgba(214,48,49,0.1); color: #d63031; }
+        .trend-badge.stable { background: rgba(108,117,125,0.1); color: #6c757d; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="header">
-        <h1><i class="fas fa-fire"></i> AI Wildfire & Flood Risk Assessment</h1>
-        <p>Real-time environmental analysis using satellite data & PyTorch AI</p>
+        <h1><i class="fas fa-satellite"></i> AI Wildfire & Flood Risk Assessment</h1>
+        <p>Real-time environmental analysis using satellite data, climate models & PyTorch AI</p>
     </div>
 
     <div class="tab-buttons">
@@ -64,7 +75,7 @@
                         <label><i class="fas fa-crosshairs"></i> Input Method:</label>
                         <select id="inputMethod" onchange="toggleInputMethod()">
                             <option value="coordinates">Coordinates</option>
-                            <option value="search">Search Location</option>
+                            <option value="address">Search Address</option>
                         </select>
                     </div>
 
@@ -81,16 +92,12 @@
                         </div>
                     </div>
 
-                    <div id="searchInput" style="display: none;">
-                        <label><i class="fas fa-search-location"></i> Search Location</label>
-                        <input id="locationSearch" placeholder="e.g., San Francisco, CA">
-                        <button onclick="searchLocation()" style="margin-top: 10px; width: 100%;">
-                            <i class="fas fa-search"></i> Find on Map
+                    <div id="addressInput" style="display: none;">
+                        <label><i class="fas fa-search-location"></i> Search by Address</label>
+                        <input id="addressSearch" placeholder="e.g., Paradise, California">
+                        <button onclick="geocodeAddress()" style="margin-top: 10px;">
+                            <i class="fas fa-search"></i> Find Location
                         </button>
-                        <div id="mapPreview" style="height: 200px; margin-top: 15px; border-radius: 8px; background: linear-gradient(135deg, #6a89cc 0%, #4a69bd 100%); display: flex; align-items: center; justify-content: center; color: white; flex-direction: column;">
-                            <i class="fas fa-map-marked-alt fa-3x"></i>
-                            <p>Map integration available</p>
-                        </div>
                     </div>
 
                     <div style="margin: 20px 0;">
@@ -100,16 +107,16 @@
                             <span class="location-chip" onclick="setLocation(38.58, -121.49)"><i class="fas fa-city"></i> Sacramento, CA</span>
                             <span class="location-chip" onclick="setLocation(39.76, -121.62)"><i class="fas fa-tree"></i> Paradise, CA</span>
                             <span class="location-chip" onclick="setLocation(34.05, -118.24)"><i class="fas fa-building"></i> Los Angeles</span>
-                            <span class="location-chip" onclick="setLocation(40.71, -74.01)"><i class="fas fa-skyscraper"></i> New York</span>
+                            <span class="location-chip" onclick="setLocation(40.71, -74.01)"><i class="fas fa-landmark"></i> New York</span>
                         </div>
                     </div>
 
-                    <button onclick="analyze()" style="width: 100%; padding: 16px; font-size: 18px; margin-top: 10px;">
-                        <i class="fas fa-satellite"></i> Analyze Satellite Data
+                    <button onclick="analyze()" style="padding: 16px; font-size: 18px; margin-top: 10px;">
+                        <i class="fas fa-satellite-dish"></i> Analyze Location
                     </button>
 
                     <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 8px; font-size: 14px;">
-                        <i class="fas fa-info-circle"></i> Analysis takes 15-30 seconds. Powered by Google Earth Engine.
+                        <i class="fas fa-info-circle"></i> Analysis takes 20-30 seconds. Processing live satellite imagery from Google Earth Engine.
                     </div>
                 </div>
             </div>
@@ -121,21 +128,11 @@
                         <div class="loading">
                             <i class="fas fa-satellite fa-3x" style="color: #ff6b35; margin-bottom: 20px;"></i>
                             <h3>Ready for Analysis</h3>
-                            <p>Enter location coordinates and click "Analyze Satellite Data"</p>
+                            <p>Enter location and click "Analyze Location" to begin</p>
                             <div class="coordinates-display">
-                                Try: 39.8, -121.4 (Camp Fire area)
+                                Try: 39.8, -121.4 (Camp Fire area - high wildfire risk)
                             </div>
                         </div>
-                    </div>
-
-                    <div id="environmentalData" style="display: none;">
-                        <h3><i class="fas fa-chart-line"></i> Environmental Data</h3>
-                        <div class="feature-grid" id="featuresGrid"></div>
-                    </div>
-
-                    <div id="rawData" style="display: none; margin-top: 25px;">
-                        <h3><i class="fas fa-code"></i> Raw API Response</h3>
-                        <pre id="rawDataContent" style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 12px; max-height: 300px; overflow: auto;"></pre>
                     </div>
                 </div>
             </div>
@@ -144,67 +141,58 @@
 
     <div id="info-tab" class="tab-content" style="display: none;">
         <div class="card">
-            <h2><i class="fas fa-cogs"></i> How It Works: The Science Behind the Analysis</h2>
+            <h2><i class="fas fa-cogs"></i> Scientific Methodology</h2>
             
             <div class="info-section">
-                <h3><i class="fas fa-satellite"></i> Data Pipeline</h3>
+                <h3><i class="fas fa-satellite"></i> Data Processing Pipeline</h3>
                 <div class="feature-grid">
                     <div class="feature-item">
-                        <i class="fas fa-cloud-sun fa-2x" style="color: #3498db;"></i>
-                        <h4>1. Satellite Data</h4>
-                        <p>Fetch real-time data from Google Earth Engine</p>
+                        <i class="fas fa-cloud-download-alt fa-2x" style="color: #3498db;"></i>
+                        <h4>1. Data Acquisition</h4>
+                        <p>Fetch Sentinel-2, ERA5-Land, SRTM data via Google Earth Engine API</p>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-calculator fa-2x" style="color: #9b59b6;"></i>
                         <h4>2. Feature Extraction</h4>
-                        <p>Calculate 16 environmental indices</p>
+                        <p>Calculate 16 environmental indices (NDVI, NDWI, NBR, NDMI, etc.)</p>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-brain fa-2x" style="color: #e74c3c;"></i>
                         <h4>3. AI Processing</h4>
-                        <p>PyTorch neural network analysis</p>
+                        <p>PyTorch neural network with Focal Loss optimization</p>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-chart-pie fa-2x" style="color: #27ae60;"></i>
-                        <h4>4. Risk Prediction</h4>
-                        <p>Generate probability scores</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <h3><i class="fas fa-calculator"></i> Key Calculations</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
-                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #27ae60;">
-                        <h4><i class="fas fa-leaf" style="color: #27ae60;"></i> NDVI</h4>
-                        <p><strong>Normalized Difference Vegetation Index</strong></p>
-                        <p>Measures vegetation health: (NIR - Red) / (NIR + Red)</p>
-                        <small>Higher values = more vegetation</small>
-                    </div>
-                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #3498db;">
-                        <h4><i class="fas fa-tint" style="color: #3498db;"></i> Temperature</h4>
-                        <p><strong>Land Surface Temperature</strong></p>
-                        <p>From MODIS satellite, indicates heat stress</p>
-                        <small>Higher temps = increased fire risk</small>
-                    </div>
-                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #e74c3c;">
-                        <h4><i class="fas fa-fire" style="color: #e74c3c;"></i> Risk Scoring</h4>
-                        <p><strong>Neural Network Prediction</strong></p>
-                        <p>Model trained on historical wildfire/flood data with Focal Loss</p>
-                        <small>83% overall accuracy</small>
+                        <h4>4. Risk Assessment</h4>
+                        <p>Generate probability scores with environmental multipliers</p>
                     </div>
                 </div>
             </div>
 
             <div class="info-section">
                 <h3><i class="fas fa-database"></i> Data Sources</h3>
-                <ul style="line-height: 1.8;">
-                    <li><strong>Sentinel-2</strong>: European Space Agency, 10m resolution</li>
-                    <li><strong>ERA5-Land</strong>: ECMWF climate reanalysis data</li>
-                    <li><strong>MODIS</strong>: NASA land surface temperature</li>
-                    <li><strong>SRTM</strong>: NASA elevation data</li>
-                    <li><strong>Training Data</strong>: Historical wildfire & flood records</li>
+                <ul style="line-height: 2;">
+                    <li><strong>Sentinel-2 MSI</strong>: European Space Agency, 10m resolution multispectral imagery</li>
+                    <li><strong>ERA5-Land</strong>: ECMWF climate reanalysis, temperature & precipitation data</li>
+                    <li><strong>MODIS</strong>: NASA land surface temperature (fallback)</li>
+                    <li><strong>SRTM</strong>: NASA Shuttle Radar Topography Mission elevation data</li>
+                    <li><strong>CHIRPS</strong>: Climate Hazards Group precipitation (fallback)</li>
                 </ul>
+            </div>
+
+            <div class="info-section">
+                <h3><i class="fas fa-brain"></i> Machine Learning Model</h3>
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 15px;">
+                    <h4>Architecture:</h4>
+                    <ul>
+                        <li><strong>Type:</strong> Dense Neural Network (11,330 parameters)</li>
+                        <li><strong>Input:</strong> 16 environmental features</li>
+                        <li><strong>Layers:</strong> 3 hidden layers (128→64→32 neurons) with BatchNorm</li>
+                        <li><strong>Output:</strong> Binary classification (Low Risk / High Risk)</li>
+                        <li><strong>Loss Function:</strong> Focal Loss (α=0.5, γ=2.0) for class imbalance</li>
+                        <li><strong>Performance:</strong> 83% overall accuracy, 43% minority class recall</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -213,8 +201,8 @@
         <div class="card">
             <div style="text-align: center; margin-bottom: 30px;">
                 <i class="fas fa-fire fa-4x" style="color: #ff6b35; margin-bottom: 20px;"></i>
-                <h2>AI-Powered Environmental Risk Assessment</h2>
-                <p>A machine learning system for proactive disaster risk analysis</p>
+                <h2>AI-Powered Environmental Risk Assessment System</h2>
+                <p style="font-size: 18px; color: #666;">Proactive disaster risk analysis using satellite imagery and machine learning</p>
             </div>
 
             <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; border-radius: 10px; margin: 25px 0;">
@@ -228,27 +216,26 @@
                     <div class="feature-item">
                         <i class="fab fa-js-square fa-2x" style="color: #f7df1e;"></i>
                         <h4>Frontend</h4>
-                        <p>HTML5 • CSS3 • JavaScript</p>
+                        <p>HTML5 • CSS3 • Vanilla JavaScript</p>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-cloud fa-2x" style="color: #4285f4;"></i>
                         <h4>Infrastructure</h4>
-                        <p>Render • Vercel • Google Cloud</p>
+                        <p>Render.com • Google Cloud • Vercel</p>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-brain fa-2x" style="color: #ff6b35;"></i>
                         <h4>AI/ML</h4>
-                        <p>Neural Network • Focal Loss</p>
+                        <p>Dense NN • Focal Loss • 16 Features</p>
                     </div>
                 </div>
             </div>
 
             <div class="footer">
-                <h3><i class="fas fa-user-tie"></i> Developer: Roland Farrales</h3>
-                <p style="margin: 15px 0;">AI/ML Engineer • Full-stack Developer • Environmental Tech</p>
+                <h3><i class="fas fa-user-graduate"></i> Developer: Roland Farrales</h3>
+                <p style="margin: 15px 0; font-size: 16px;">Aerospace Engineering Student • AI/ML Engineer • Full-Stack Developer</p>
                 
                 <div class="social-links" style="margin: 25px 0;">
-                    <!-- YOUR UPDATED LINKS -->
                     <a href="https://www.linkedin.com/in/roland-farrales-0aa69a376/" target="_blank">
                         <i class="fab fa-linkedin"></i> LinkedIn
                     </a>
@@ -260,13 +247,22 @@
                     </a>
                 </div>
 
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 25px;">
                     <h4><i class="fas fa-shield-alt"></i> Project Details</h4>
-                    <p style="font-size: 13px; color: #666;">
-                        • Model trained with Hey Neo platform<br>
-                        • 100% free deployment (Render + Vercel)<br>
-                        • Real-time satellite data analysis<br>
-                        • Portfolio project demonstrating full-stack ML deployment
+                    <div style="font-size: 14px; color: #666; text-align: left; max-width: 800px; margin: 0 auto;">
+                        <p><strong>• Purpose:</strong> Portfolio project demonstrating full-stack ML deployment and satellite data analysis</p>
+                        <p><strong>• Model Training:</strong> Focal Loss neural network trained on historical wildfire/flood data</p>
+                        <p><strong>• Deployment:</strong> 100% free tier (Render + Vercel) - no ongoing costs</p>
+                        <p><strong>• Data Privacy:</strong> No personal data collected, public satellite data only</p>
+                        <p><strong>• Use Case:</strong> Emergency management planning, insurance risk assessment, research</p>
+                        <p><strong>• Scientific Validation:</strong> All risk factors include peer-reviewed citations</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 25px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                    <p style="margin: 0; font-size: 13px; color: #666;">
+                        © 2025 Roland Farrales • Non-Commercial Research Project • 
+                        Data: Google Earth Engine, ESA, ECMWF, NASA
                     </p>
                 </div>
             </div>
@@ -274,13 +270,15 @@
     </div>
 
     <script>
-        // Your Render backend URL
+        // Backend API URL - Updated with your Render URL
         const API_URL = 'https://wildfire-risk-backend.onrender.com';
+        
+        let currentData = null;
         
         function toggleInputMethod() {
             const method = document.getElementById('inputMethod').value;
             document.getElementById('coordinatesInput').style.display = method === 'coordinates' ? 'block' : 'none';
-            document.getElementById('searchInput').style.display = method === 'search' ? 'block' : 'none';
+            document.getElementById('addressInput').style.display = method === 'address' ? 'block' : 'none';
         }
 
         function setLocation(lat, lng) {
@@ -297,20 +295,101 @@
             event.target.classList.add('active');
         }
 
+        async function geocodeAddress() {
+            const address = document.getElementById('addressSearch').value.trim();
+            if (!address) {
+                alert('Please enter an address');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-search-location fa-spin fa-3x" style="color: #ff6b35; margin-bottom: 20px;"></i>
+                    <h3>Searching for location...</h3>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_URL}/geocode`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({address: address})
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('lat').value = data.lat;
+                    document.getElementById('lng').value = data.lng;
+                    document.getElementById('inputMethod').value = 'coordinates';
+                    toggleInputMethod();
+                    
+                    resultDiv.innerHTML = `
+                        <div style="background: #d4edda; padding: 20px; border-radius: 10px; border-left: 4px solid #28a745;">
+                            <h3><i class="fas fa-check-circle"></i> Location Found!</h3>
+                            <p><strong>${data.display_name}</strong></p>
+                            <p>Coordinates: ${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}</p>
+                            <button onclick="analyze()" style="margin-top: 15px;">
+                                <i class="fas fa-satellite"></i> Analyze This Location
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Location not found');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Geocoding Failed</h4>
+                        <p>${error.message}</p>
+                        <p>Please try using coordinates instead.</p>
+                    </div>
+                `;
+            }
+        }
+
         async function analyze() {
-            const lat = document.getElementById('lat').value;
-            const lng = document.getElementById('lng').value;
+            const method = document.getElementById('inputMethod').value;
+            let requestBody;
+
+            if (method === 'address') {
+                const address = document.getElementById('addressSearch').value.trim();
+                if (!address) {
+                    alert('Please enter an address');
+                    return;
+                }
+                requestBody = { address: address };
+            } else {
+                const lat = parseFloat(document.getElementById('lat').value);
+                const lng = parseFloat(document.getElementById('lng').value);
+                
+                if (isNaN(lat) || isNaN(lng)) {
+                    alert('Please enter valid coordinates');
+                    return;
+                }
+                
+                requestBody = { lat: lat, lng: lng };
+            }
+
             const resultDiv = document.getElementById('result');
             
             resultDiv.innerHTML = `
                 <div class="loading">
                     <i class="fas fa-satellite-dish fa-spin fa-3x" style="color: #ff6b35; margin-bottom: 20px;"></i>
                     <h3>Analyzing Environmental Data</h3>
-                    <p>Fetching from Google Earth Engine...</p>
+                    <p>Fetching Sentinel-2 imagery...</p>
                     <div class="progress-bar">
-                        <div class="progress-fill risk-medium" style="width: 40%"></div>
+                        <div class="progress-fill risk-medium" style="width: 50%"></div>
                     </div>
-                    <p class="timestamp"><i class="fas fa-clock"></i> Processing satellite data (15-30 seconds)</p>
+                    <p class="timestamp"><i class="fas fa-clock"></i> This takes 20-30 seconds</p>
+                    <div style="margin-top: 20px; font-size: 14px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
+                        <p><i class="fas fa-satellite"></i> Accessing Google Earth Engine...</p>
+                        <p><i class="fas fa-image"></i> Processing satellite imagery...</p>
+                        <p><i class="fas fa-cloud-sun"></i> Fetching climate data...</p>
+                        <p><i class="fas fa-history"></i> Analyzing historical trends...</p>
+                        <p><i class="fas fa-brain"></i> Running AI model...</p>
+                    </div>
                 </div>
             `;
             
@@ -319,11 +398,7 @@
                 const response = await fetch(`${API_URL}/analyze`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        lat: parseFloat(lat),
-                        lng: parseFloat(lng),
-                        buffer_km: 5
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
                 const responseTime = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -334,16 +409,17 @@
                 }
                 
                 const data = await response.json();
-                displayResults(data, lat, lng, responseTime);
+                currentData = data;
+                displayResults(data, responseTime);
                 
             } catch (error) {
                 resultDiv.innerHTML = `
                     <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
                         <h4>Analysis Failed</h4>
                         <p>${error.message}</p>
-                        <small>Backend: ${API_URL}</small>
-                        <button onclick="analyze()" style="margin-top: 10px; width: 100%;">
+                        <small style="display: block; margin-top: 10px;">Backend: ${API_URL}</small>
+                        <button onclick="analyze()" style="margin-top: 15px;">
                             <i class="fas fa-redo"></i> Try Again
                         </button>
                     </div>
@@ -351,157 +427,217 @@
             }
         }
         
-        function displayResults(data, lat, lng, responseTime) {
-            const wildfireRisk = data.predictions?.wildfire_risk * 100 || 0;
-            const floodRisk = data.predictions?.flood_risk * 100 || 0;
+        function displayResults(data, responseTime) {
+            const wildfireRisk = data.predictions.wildfire_risk * 100;
+            const floodRisk = data.predictions.flood_risk * 100;
             
             const wildfireLevel = wildfireRisk > 70 ? 'high' : wildfireRisk > 30 ? 'medium' : 'low';
             const floodLevel = floodRisk > 70 ? 'high' : floodRisk > 30 ? 'medium' : 'low';
             
             const riskLabels = {
-                high: {text: 'High Risk', icon: 'fas fa-exclamation-triangle', color: '#d63031'},
-                medium: {text: 'Moderate Risk', icon: 'fas fa-exclamation-circle', color: '#f39c12'},
-                low: {text: 'Low Risk', icon: 'fas fa-check-circle', color: '#27ae60'}
+                high: {text: 'HIGH RISK', icon: 'fas fa-exclamation-triangle', color: '#d63031'},
+                medium: {text: 'MODERATE RISK', icon: 'fas fa-exclamation-circle', color: '#f39c12'},
+                low: {text: 'LOW RISK', icon: 'fas fa-check-circle', color: '#27ae60'}
             };
             
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
-                <h3><i class="fas fa-map-marker-alt"></i> Location Analysis</h3>
+            let html = `
+                <h3><i class="fas fa-map-marker-alt"></i> ${data.location.name || 'Location Analysis'}</h3>
                 <div class="coordinates-display">
-                    <i class="fas fa-globe-americas"></i> Coordinates: ${lat}, ${lng}
-                    ${data.location ? `<br><i class="fas fa-map-pin"></i> ${data.location}` : ''}
+                    <i class="fas fa-globe-americas"></i> Coordinates: ${data.location.lat.toFixed(4)}°, ${data.location.lng.toFixed(4)}°
+                    <br><i class="fas fa-expand-alt"></i> Analysis Radius: ${data.location.buffer_km} km
                 </div>
+                
+                ${data.satellite_image ? `
+                    <div style="text-align: center; margin: 25px 0;">
+                        <h4><i class="fas fa-satellite-dish"></i> Sentinel-2 Satellite Imagery</h4>
+                        <img src="${data.satellite_image}" class="satellite-image" alt="Satellite view">
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            <i class="fas fa-calendar"></i> Acquired: ${data.metadata.acquisition_date} • 
+                            <i class="fas fa-images"></i> ${data.metadata.imagery_count} images analyzed
+                        </p>
+                    </div>
+                ` : ''}
                 
                 <div class="metric">
                     <h4><i class="fas fa-fire" style="color: ${riskLabels[wildfireLevel].color};"></i> Wildfire Risk Assessment</h4>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
-                        <span>Low Risk</span>
-                        <span style="font-size: 28px; font-weight: bold; color: ${riskLabels[wildfireLevel].color};">${wildfireRisk.toFixed(1)}%</span>
-                        <span>High Risk</span>
+                        <span>Low</span>
+                        <span style="font-size: 32px; font-weight: bold; color: ${riskLabels[wildfireLevel].color};">${wildfireRisk.toFixed(1)}%</span>
+                        <span>High</span>
                     </div>
                     <div class="progress-bar">
                         <div class="progress-fill risk-${wildfireLevel}" style="width: ${wildfireRisk}%"></div>
                     </div>
-                    <p style="margin-top: 10px;">
+                    <p style="margin-top: 15px;">
                         <i class="${riskLabels[wildfireLevel].icon}" style="color: ${riskLabels[wildfireLevel].color};"></i>
-                        <strong>${riskLabels[wildfireLevel].text}:</strong>
-                        ${wildfireRisk > 70 ? 'Extreme fire danger detected based on current conditions' : 
-                          wildfireRisk > 30 ? 'Elevated fire conditions present' : 
-                          'Normal fire conditions observed'}
+                        <strong>${riskLabels[wildfireLevel].text}</strong>
                     </p>
                 </div>
                 
                 <div class="metric">
                     <h4><i class="fas fa-water" style="color: ${riskLabels[floodLevel].color};"></i> Flood Risk Assessment</h4>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
-                        <span>Low Risk</span>
-                        <span style="font-size: 28px; font-weight: bold; color: ${riskLabels[floodLevel].color};">${floodRisk.toFixed(1)}%</span>
-                        <span>High Risk</span>
+                        <span>Low</span>
+                        <span style="font-size: 32px; font-weight: bold; color: ${riskLabels[floodLevel].color};">${floodRisk.toFixed(1)}%</span>
+                        <span>High</span>
                     </div>
                     <div class="progress-bar">
                         <div class="progress-fill risk-${floodLevel}" style="width: ${floodRisk}%"></div>
                     </div>
-                    <p style="margin-top: 10px;">
+                    <p style="margin-top: 15px;">
                         <i class="${riskLabels[floodLevel].icon}" style="color: ${riskLabels[floodLevel].color};"></i>
-                        <strong>${riskLabels[floodLevel].text}:</strong>
-                        ${floodRisk > 70 ? 'Significant flood potential identified' : 
-                          floodRisk > 30 ? 'Moderate flood risk present' : 
-                          'Minimal flood risk detected'}
+                        <strong>${riskLabels[floodLevel].text}</strong>
                     </p>
                 </div>
-                
-                <p class="timestamp">
+            `;
+
+            // Danger Factors
+            if (data.danger_factors && (data.danger_factors.wildfire_factors.length > 0 || data.danger_factors.flood_factors.length > 0)) {
+                html += `<div style="margin: 30px 0;">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Identified Risk Factors (${data.danger_factors.total_factors})</h3>`;
+
+                if (data.danger_factors.wildfire_factors.length > 0) {
+                    html += `<h4 style="color: #d63031; margin: 20px 0;"><i class="fas fa-fire"></i> Wildfire Factors</h4>`;
+                    data.danger_factors.wildfire_factors.forEach(factor => {
+                        html += `
+                            <div class="factor-card ${factor.severity}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h4 style="margin: 0;">${factor.factor}</h4>
+                                    <span class="severity-badge ${factor.severity}">${factor.severity.toUpperCase()}</span>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 5px; font-family: monospace; margin: 10px 0;">
+                                    ${factor.value}
+                                </div>
+                                <p style="margin: 10px 0; line-height: 1.6;">${factor.description}</p>
+                                <p style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 14px;">
+                                    <i class="fas fa-lightbulb"></i> ${factor.explanation}
+                                </p>
+                                <div class="citation">
+                                    <i class="fas fa-book"></i> <strong>Citation:</strong> ${factor.citation}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                if (data.danger_factors.flood_factors.length > 0) {
+                    html += `<h4 style="color: #3498db; margin: 20px 0;"><i class="fas fa-water"></i> Flood Factors</h4>`;
+                    data.danger_factors.flood_factors.forEach(factor => {
+                        html += `
+                            <div class="factor-card ${factor.severity}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h4 style="margin: 0;">${factor.factor}</h4>
+                                    <span class="severity-badge ${factor.severity}">${factor.severity.toUpperCase()}</span>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 5px; font-family: monospace; margin: 10px 0;">
+                                    ${factor.value}
+                                </div>
+                                <p style="margin: 10px 0; line-height: 1.6;">${factor.description}</p>
+                                <p style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 14px;">
+                                    <i class="fas fa-lightbulb"></i> ${factor.explanation}
+                                </p>
+                                <div class="citation">
+                                    <i class="fas fa-book"></i> <strong>Citation:</strong> ${factor.citation}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `</div>`;
+            }
+
+            // Historical Trends
+            if (data.historical_trends && data.historical_trends.years_analyzed > 0) {
+                html += `
+                    <div style="margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                        <h3><i class="fas fa-history"></i> Historical Trends (${data.historical_trends.years_analyzed} Years)</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                            <div style="background: white; padding: 20px; border-radius: 10px;">
+                                <h4><i class="fas fa-seedling"></i> Vegetation Trend</h4>
+                                <span class="trend-badge ${data.historical_trends.vegetation_trend}">
+                                    <i class="fas fa-arrow-${data.historical_trends.vegetation_trend === 'increasing' ? 'up' : data.historical_trends.vegetation_trend === 'decreasing' ? 'down' : 'right'}"></i>
+                                    ${data.historical_trends.vegetation_trend}
+                                </span>
+                                <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                                    Change: ${data.historical_trends.vegetation_change >= 0 ? '+' : ''}${data.historical_trends.vegetation_change.toFixed(3)}
+                                </p>
+                            </div>
+                            <div style="background: white; padding: 20px; border-radius: 10px;">
+                                <h4><i class="fas fa-water"></i> Water Content Trend</h4>
+                                <span class="trend-badge ${data.historical_trends.water_trend}">
+                                    <i class="fas fa-arrow-${data.historical_trends.water_trend === 'increasing' ? 'up' : data.historical_trends.water_trend === 'decreasing' ? 'down' : 'right'}"></i>
+                                    ${data.historical_trends.water_trend}
+                                </span>
+                                <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                                    Change: ${data.historical_trends.water_change >= 0 ? '+' : ''}${data.historical_trends.water_change.toFixed(3)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Environmental Features
+            html += `
+                <div style="margin: 30px 0;">
+                    <h3><i class="fas fa-chart-pie"></i> Environmental Features</h3>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-leaf fa-2x" style="color: #27ae60;"></i>
+                            <h4>NDVI</h4>
+                            <p style="font-size: 24px; font-weight: bold; color: #27ae60; margin: 10px 0;">${data.features.ndvi.toFixed(3)}</p>
+                            <small>Vegetation Index</small>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-tint fa-2x" style="color: #3498db;"></i>
+                            <h4>NDWI</h4>
+                            <p style="font-size: 24px; font-weight: bold; color: #3498db; margin: 10px 0;">${data.features.ndwi.toFixed(3)}</p>
+                            <small>Water Index</small>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-mountain fa-2x" style="color: #8e44ad;"></i>
+                            <h4>Elevation</h4>
+                            <p style="font-size: 24px; font-weight: bold; color: #8e44ad; margin: 10px 0;">${data.features.elevation.toFixed(0)}m</p>
+                            <small>Above Sea Level</small>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-chart-line fa-2x" style="color: #f39c12;"></i>
+                            <h4>Slope</h4>
+                            <p style="font-size: 24px; font-weight: bold; color: #f39c12; margin: 10px 0;">${data.features.slope.toFixed(1)}°</p>
+                            <small>Terrain Angle</small>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-thermometer-half fa-2x" style="color: #e74c3c;"></i>
+                            <h4>Temperature</h4>
+                            <p style="font-size: 24px; font-weight: bold; color: #e74c3c; margin: 10px 0;">${data.features.temperature || 'N/A'}°F</p>
+                            <small>30-Day Average</small>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-cloud-rain fa-2x" style="color: #16a085;"></i>
+                            <h4>Precipitation</h4>
+                            <p style="font-size: 24px; font-weight: bold; color: #16a085; margin: 10px 0;">${data.features.precipitation || 'N/A'}mm</p>
+                            <small>30-Day Total</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            html += `
+                <p class="timestamp" style="text-align: center; margin: 20px 0;">
                     <i class="fas fa-clock"></i> Analysis completed in ${responseTime}s • 
-                    <i class="fas fa-database"></i> Data source: Google Earth Engine
+                    <i class="fas fa-database"></i> Model v${data.metadata.analysis_version} • 
+                    <i class="fas fa-chart-bar"></i> Confidence: ${(data.predictions.model_confidence * 100).toFixed(1)}%
                 </p>
                 
                 <div style="text-align: center; margin: 25px 0;">
-                    <button onclick="analyze()" style="padding: 12px 30px;">
+                    <button onclick="analyze()" style="padding: 12px 30px; width: auto; margin: 5px;">
                         <i class="fas fa-redo"></i> Analyze Another Location
-                    </button>
-                    <button onclick="toggleRawData()" style="padding: 12px 30px; background: #6c757d; margin-left: 10px;">
-                        <i class="fas fa-code"></i> View Raw Data
                     </button>
                 </div>
             `;
             
-            // Display environmental features
-            if (data.features) {
-                document.getElementById('environmentalData').style.display = 'block';
-                const featuresGrid = document.getElementById('featuresGrid');
-                
-                const features = [
-                    { 
-                        icon: 'fas fa-thermometer-half', 
-                        label: 'Temperature', 
-                        value: data.features.temperature?.toFixed(1), 
-                        unit: '°C', 
-                        color: '#e74c3c',
-                        description: 'Land surface temperature'
-                    },
-                    { 
-                        icon: 'fas fa-cloud-rain', 
-                        label: 'Precipitation', 
-                        value: data.features.precipitation?.toFixed(1), 
-                        unit: 'mm', 
-                        color: '#3498db',
-                        description: 'Recent rainfall'
-                    },
-                    { 
-                        icon: 'fas fa-leaf', 
-                        label: 'Vegetation', 
-                        value: data.features.ndvi?.toFixed(3), 
-                        unit: 'NDVI', 
-                        color: '#27ae60',
-                        description: 'Vegetation health index'
-                    },
-                    { 
-                        icon: 'fas fa-mountain', 
-                        label: 'Elevation', 
-                        value: data.features.elevation?.toFixed(0), 
-                        unit: 'm', 
-                        color: '#8e44ad',
-                        description: 'Above sea level'
-                    }
-                ].filter(f => f.value !== undefined && f.value !== null);
-                
-                featuresGrid.innerHTML = features.map(f => `
-                    <div class="feature-item">
-                        <i class="${f.icon} fa-2x" style="color: ${f.color}; margin-bottom: 10px;"></i>
-                        <h4>${f.label}</h4>
-                        <p style="font-size: 24px; font-weight: bold; color: ${f.color}; margin: 10px 0;">${f.value}</p>
-                        <small>${f.unit}</small>
-                        <p style="font-size: 12px; color: #666; margin-top: 5px;">${f.description}</p>
-                    </div>
-                `).join('');
-            }
-            
-            // Store raw data for display
-            window.lastRawData = data;
-        }
-        
-        function toggleRawData() {
-            const rawDataDiv = document.getElementById('rawData');
-            const rawContent = document.getElementById('rawDataContent');
-            
-            if (rawDataDiv.style.display === 'none') {
-                rawContent.textContent = JSON.stringify(window.lastRawData, null, 2);
-                rawDataDiv.style.display = 'block';
-            } else {
-                rawDataDiv.style.display = 'none';
-            }
-        }
-        
-        function searchLocation() {
-            const searchText = document.getElementById('locationSearch').value;
-            if (!searchText.trim()) {
-                alert('Please enter a location to search');
-                return;
-            }
-            
-            // For now, just show a message about map integration
-            alert('Map integration would connect to Google Maps API here.\nFor now, please use coordinates input.');
-            // In a full implementation, this would call Google Maps Geocoding API
+            document.getElementById('result').innerHTML = html;
         }
 
         // Initialize
