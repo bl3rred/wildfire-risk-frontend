@@ -295,59 +295,83 @@
             event.target.classList.add('active');
         }
 
-        async function geocodeAddress() {
-            const address = document.getElementById('addressSearch').value.trim();
-            if (!address) {
-                alert('Please enter an address');
-                return;
-            }
+async function geocodeAddress() {
+    const address = document.getElementById('addressSearch').value.trim();
+    if (!address) {
+        alert('Please enter an address, city, or location');
+        return;
+    }
 
-            const resultDiv = document.getElementById('result');
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="loading">
+            <i class="fas fa-search-location fa-spin fa-3x" style="color: #ff6b35; margin-bottom: 20px;"></i>
+            <h3>Searching for location...</h3>
+            <p>Querying: "${address}"</p>
+        </div>
+    `;
+
+    try {
+        console.log('Geocoding address:', address);
+        
+        const response = await fetch(`${API_URL}/geocode`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ address: address })
+        });
+
+        console.log('Geocode response status:', response.status);
+        
+        const data = await response.json();
+        console.log('Geocode response data:', data);
+
+        if (response.ok && data.lat && data.lng) {
+            // Success!
+            document.getElementById('lat').value = data.lat.toFixed(6);
+            document.getElementById('lng').value = data.lng.toFixed(6);
+            document.getElementById('inputMethod').value = 'coordinates';
+            toggleInputMethod();
+            
             resultDiv.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-search-location fa-spin fa-3x" style="color: #ff6b35; margin-bottom: 20px;"></i>
-                    <h3>Searching for location...</h3>
+                <div style="background: #d4edda; padding: 20px; border-radius: 10px; border-left: 4px solid #28a745;">
+                    <h3><i class="fas fa-check-circle"></i> Location Found!</h3>
+                    <p style="font-size: 16px; margin: 10px 0;"><strong>${data.display_name}</strong></p>
+                    <div class="coordinates-display">
+                        <i class="fas fa-map-pin"></i> ${data.lat.toFixed(6)}°, ${data.lng.toFixed(6)}°
+                    </div>
+                    <button onclick="analyze()" style="margin-top: 15px;">
+                        <i class="fas fa-satellite"></i> Analyze This Location
+                    </button>
                 </div>
             `;
-
-            try {
-                const response = await fetch(`${API_URL}/geocode`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({address: address})
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    document.getElementById('lat').value = data.lat;
-                    document.getElementById('lng').value = data.lng;
-                    document.getElementById('inputMethod').value = 'coordinates';
-                    toggleInputMethod();
-                    
-                    resultDiv.innerHTML = `
-                        <div style="background: #d4edda; padding: 20px; border-radius: 10px; border-left: 4px solid #28a745;">
-                            <h3><i class="fas fa-check-circle"></i> Location Found!</h3>
-                            <p><strong>${data.display_name}</strong></p>
-                            <p>Coordinates: ${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}</p>
-                            <button onclick="analyze()" style="margin-top: 15px;">
-                                <i class="fas fa-satellite"></i> Analyze This Location
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    throw new Error(data.error || 'Location not found');
-                }
-            } catch (error) {
-                resultDiv.innerHTML = `
-                    <div class="error">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Geocoding Failed</h4>
-                        <p>${error.message}</p>
-                        <p>Please try using coordinates instead.</p>
-                    </div>
-                `;
-            }
+        } else {
+            throw new Error(data.error || 'Location not found. Try being more specific (e.g., "Sacramento, CA" or "New York, NY")');
         }
+    } catch (error) {
+        console.error('Geocoding error:', error);
+        resultDiv.innerHTML = `
+            <div class="error">
+                <h4><i class="fas fa-exclamation-triangle"></i> Location Not Found</h4>
+                <p>${error.message}</p>
+                <div style="margin-top: 15px; text-align: left;">
+                    <strong>Tips for better results:</strong>
+                    <ul style="margin: 10px 0;">
+                        <li>Try: "Sacramento, California"</li>
+                        <li>Try: "Los Angeles, CA"</li>
+                        <li>Try: "1600 Pennsylvania Ave, Washington, DC"</li>
+                        <li>Be specific with city and state</li>
+                    </ul>
+                </div>
+                <button onclick="document.getElementById('result').innerHTML = ''; toggleInputMethod();" style="margin-top: 15px;">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        `;
+    }
+}
 
         async function analyze() {
             const method = document.getElementById('inputMethod').value;
